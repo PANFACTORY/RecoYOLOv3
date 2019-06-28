@@ -1,4 +1,4 @@
-# --find-links wheelhouse
+--find-links wheelhouse
 Click==7.0
 cycler==0.10.0
 Flask==1.0.3
@@ -6,10 +6,10 @@ itsdangerous==1.1.0
 Jinja2==2.10.1
 kiwisolver==1.1.0
 MarkupSafe==1.1.1
-matplotlib==3.1.0
+matplotlib==3.0.0
 numpy==1.16.4
 #opencv-python==4.1.0.25
-opencv_python==4.1.0
+#opencv_python==4.1.0
 pandas==0.24.2
 Pillow==6.0.0
 pip==19.1.1
@@ -18,7 +18,7 @@ python-dateutil==2.8.0
 pytz==2019.1
 setuptools==39.0.1
 six==1.12.0
-#torch==1.0.1
+torch==1.0.1
 Werkzeug==0.15.4
-https://download.pytorch.org/whl/cpu/torch-1.1.0-cp37-none-linux_x86_64.whl
-
+wheel
+opencv-contrib-python==4.1.0.25
