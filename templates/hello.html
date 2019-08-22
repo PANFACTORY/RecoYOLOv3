@@ -1,0 +1,73 @@
+﻿{% extends "layout.html" %}
+{% block content %}
+
+<h3>Reconomical YOLOv3Test</h3>
+
+<video id="camera" width="720" autoplay></video>
+<canvas id="canvas" style="display:none"></canvas>
+<img id="resimg">
+
+<script>
+    //----------クライアントのカメラ使用許可を取得----------
+    var video = document.getElementById('camera');
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || window.navigator.mozGetUserMedia;
+    window.URL = window.URL || window.webkitURL;
+
+
+    //----------クライアントのカメラ映像をvideoタグにストリーミング----------
+    var localStream = null;
+    navigator.getUserMedia({ video: true, audio: false },
+        function (stream) { 
+            console.log(stream);
+            video.srcObject = stream;
+        },
+        function (err) {
+            console.log(err);
+        }
+    );
+
+
+    //----------Ajaxでサーバに画像を送信----------
+    //①videoの画像をcanvasに描画
+    //②canvasの画像をBase64に変換
+    //③AjaxでサーバへPOST
+    //--------------------------------------------
+    function send_img() {
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+        
+        var w = video.offsetWidth;
+        var h = video.offsetHeight;
+        canvas.setAttribute("width", w);
+        canvas.setAttribute("height", h);
+        ctx.drawImage(video, 0, 0, w, h);
+
+        var base64 = canvas.toDataURL('image/png');
+
+        var fData = new FormData();
+        fData.append('img', base64);
+
+        //ajax送信
+        $.ajax({
+            url: '/img',
+            type: 'POST',
+            data: fData,
+            contentType: false,
+            processData: false,
+            success: function (data, dataType) {        
+                console.log("Success");
+                document.getElementById("resimg").src = encodeURI(data.ResultSet.result);   //imgタグに描画
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                console.log('Error : ' + errorThrown);
+            }
+        });
+    }
+
+
+    //----------一定時間ごとにサーバへ画像を送信----------
+    setInterval(function () {
+        send_img()
+    }, 500);
+</script>
+{% endblock %}
