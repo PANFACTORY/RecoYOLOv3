@@ -6,25 +6,40 @@
 <video id="camera" width="720" autoplay></video>
 <canvas id="canvas" style="display:none"></canvas>
 <img id="resimg">
+<button id="changecamera">カメラ切り替え</button>
 
 <script>
+    //----------カメラ設定用の定数----------
+    const camerauser = { audio: false, video: { facingMode: "user" } };
+    const cameraenvironment = { audio: false, video: { facingMode: "environment" } };
+
+
     //----------クライアントのカメラ使用許可を取得----------
     var video = document.getElementById('camera');
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || window.navigator.mozGetUserMedia;
     window.URL = window.URL || window.webkitURL;
-
+   
 
     //----------クライアントのカメラ映像をvideoタグにストリーミング----------
-    var localStream = null;
-    navigator.getUserMedia({ video: true, audio: false },
-        function (stream) { 
-            console.log(stream);
-            video.srcObject = stream;
-        },
-        function (err) {
-            console.log(err);
+    function setcamera(_camera) {
+        if (window.stream) {
+            window.stream.getTracks().forEach(track => {
+                track.stop();
+            });
         }
-    );
+
+        navigator.getUserMedia(_camera,
+            function (stream) {
+                console.log(stream);
+                streamstock = stream;
+                window.stream = stream;
+                video.srcObject = stream;
+            },
+            function (err) {
+                console.log(err);
+            }
+        );
+    }
 
 
     //----------Ajaxでサーバに画像を送信----------
@@ -35,7 +50,7 @@
     function send_img() {
         var canvas = document.getElementById('canvas');
         var ctx = canvas.getContext('2d');
-        
+
         var w = video.offsetWidth;
         var h = video.offsetHeight;
         canvas.setAttribute("width", w);
@@ -54,7 +69,7 @@
             data: fData,
             contentType: false,
             processData: false,
-            success: function (data, dataType) {        
+            success: function (data, dataType) {
                 console.log("Success");
                 document.getElementById("resimg").src = encodeURI(data.ResultSet.result);   //imgタグに描画
             },
@@ -68,6 +83,23 @@
     //----------一定時間ごとにサーバへ画像を送信----------
     setInterval(function () {
         send_img()
-    }, 500);
+    }, 5000);
+
+
+    //----------カメラの切り替え----------
+    var cameramode = 1;         //1:"user", -1:"environment"
+    $("#changecamera").bind("click", function () {
+        cameramode *= -1;
+        if (cameramode == 1) {
+            setcamera(camerauser);
+        }
+        else {
+            setcamera(cameraenvironment);
+        }
+    });
+
+
+    //setcamera(camerauser);      //始めカメラはユーザ側を向いているものとする
+    setcamera(camerauser);
 </script>
 {% endblock %}
